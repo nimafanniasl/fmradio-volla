@@ -24,6 +24,8 @@ jobs:
             See the assets to download this version and install.
 
           draft: false
+          prerelease: false
+          allowUpdates: true
 
   build-app:
     permissions: write-all
