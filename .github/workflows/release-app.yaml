@@ -39,7 +39,7 @@ jobs:
       - name: Install packages
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y dpkg-dev pipx docker.io
+          sudo apt-get install -y dpkg-dev pipx
           
           pipx install clickable-ut
 
@@ -49,6 +49,8 @@ jobs:
           docker info
 
       - name: Build click
+        env:
+          CLICKABLE_DOCKER_COMMAND: docker
         run: |
           clickable build --arch arm64
 
