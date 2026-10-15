@@ -1,0 +1,71 @@
+name: "release-app"
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-[a-z]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-[a-z]+.[0-9]+'
+
+jobs:
+  create-release:
+    permissions: write-all
+    environment: Relay Release
+    runs-on: ubuntu-latest
+    outputs:
+      releaseId: ${{ steps.step1.outputs.id }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract changelog section for this version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v ver="$VERSION" '
+            /^## \[/ {
+              if (found) exit
+              if ($0 ~ "\\[" ver "\\]") { found=1; next }
+              next
+            }
+            found { print }
+          ' CHANGELOG.md > changelog.txt
+
+          if [ ! -s changelog.txt ]; then
+            echo "No changelog entry found for version $VERSION." > changelog.txt
+          fi
+
+          cat changelog.txt
+
+      - id: step1
+        uses: ncipollo/release-action@v1
+        with:
+          name: "Volla FM Radio for Ubuntu Touch ${{ github.ref_name }}"
+          body: |
+            See the assets to download this version and install.
+
+          artifacts: "changelog.txt"
+          prerelease: true
+          draft: true
+
+  build-app:
+    permissions: write-all
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install packages
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y dpkg-dev pipx
+          
+          pipx install clickable-ut
+
+      - name: Build click
+        run: |
+          clickable build --arch arm64
+
+      - name: Upload click to release
+        uses: AButler/upload-release-assets@v3.0
+        with:
+          files: "build/aarch64-linux-gnu/app/*.click"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-id: ${{ needs.create-release.outputs.releaseId }}
