@@ -34,14 +34,19 @@ jobs:
     needs: create-release
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install packages
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y dpkg-dev pipx
+          sudo apt-get install -y dpkg-dev pipx docker.io
           
           pipx install clickable-ut
+
+      - name: Verify docker works
+        run: |
+          docker --version
+          docker info
 
       - name: Build click
         run: |
