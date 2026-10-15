@@ -16,24 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Extract changelog section for this version
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          awk -v ver="$VERSION" '
-            /^## \[/ {
-              if (found) exit
-              if ($0 ~ "\\[" ver "\\]") { found=1; next }
-              next
-            }
-            found { print }
-          ' CHANGELOG.md > changelog.txt
-
-          if [ ! -s changelog.txt ]; then
-            echo "No changelog entry found for version $VERSION." > changelog.txt
-          fi
-
-          cat changelog.txt
-
       - id: step1
         uses: ncipollo/release-action@v1
         with:
@@ -41,9 +23,7 @@ jobs:
           body: |
             See the assets to download this version and install.
 
-          artifacts: "changelog.txt"
-          prerelease: true
-          draft: true
+          draft: false
 
   build-app:
     permissions: write-all
