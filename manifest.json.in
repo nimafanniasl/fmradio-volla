@@ -11,5 +11,5 @@
     },
     "version": "1.0.0",
     "maintainer": "venji10 <bennisteinir@gmail.com>",
-    "framework": "ubuntu-touch-24.04-1.x"
+    "framework": "ubuntu-touch-24.04-2.x"
 }
