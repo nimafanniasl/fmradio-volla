@@ -9,7 +9,7 @@ on:
 jobs:
   create-release:
     permissions: write-all
-    environment: Relay Release
+    environment: FMRadio Release
     runs-on: ubuntu-latest
     outputs:
       releaseId: ${{ steps.step1.outputs.id }}
@@ -48,6 +48,8 @@ jobs:
   build-app:
     permissions: write-all
     runs-on: ubuntu-24.04-arm
+    environment: FMRadio Release
+    needs: create-release
 
     steps:
       - uses: actions/checkout@v3
